@@ -7,7 +7,6 @@
 
 ## 1. Requirements Finalization
 
-Lock down what "done" means for the MVP before writing code. Use this checklist as your team's working agreement.
 
 ### Core user flow
 1. User creates an account / logs in.
@@ -58,7 +57,7 @@ resume-match/
 
 ### Steps
 ```bash
-# 1. Create repo on GitHub, then clone locally
+# 1.
 git clone https://github.com/<your-org>/resume-match.git
 cd resume-match
 
@@ -195,9 +194,6 @@ dotnet ef database update
 
 ---
 
-## Week 1 Deliverable Checklist
-- [ ] Requirements doc/checklist agreed on by team
-- [ ] GitHub repo created with folder structure above
 - [ ] Backend solution + 3 projects scaffolded and building (`dotnet build`)
 - [ ] Frontend scaffolded and running (`npm run dev`)
 - [ ] Architecture diagram in `docs/`
