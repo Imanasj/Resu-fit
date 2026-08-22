@@ -138,6 +138,46 @@ body {
   margin-bottom: 8px;
 }
 
+.score-circle {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
+}
+
+.score-circle svg {
+  width: 170px;
+  height: 170px;
+  transform: rotate(-90deg);
+}
+
+.score-circle-bg,
+.score-circle-progress {
+  fill: none;
+  stroke-width: 10;
+}
+
+.score-circle-bg {
+  stroke: #e5e7eb;
+}
+
+.score-circle-progress {
+  stroke: #1f3c88;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.score-circle-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1f3c88;
+}
+
 .score {
   font-size: 56px;
   font-weight: bold;
@@ -315,4 +355,151 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+/* ===== Additions: hero section ===== */
+
+.hero {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 1.5rem;
+  text-align: center;
+}
+
+.hero-eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #185fa5;
+  margin: 0 0 8px;
+}
+
+.hero-title {
+  font-size: 30px;
+  font-weight: 500;
+  margin: 0 0 12px;
+  line-height: 1.25;
+}
+
+.hero-subtitle {
+  font-size: 15px;
+  color: #555;
+  margin: 0 auto 1.5rem;
+  max-width: 460px;
+  line-height: 1.6;
+}
+
+.hero-image {
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 2rem;
+  display: block;
+}
+
+.hero-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  text-align: left;
+}
+
+.hero-step {
+  background: #f8f8f6;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.hero-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #185fa5;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.hero-step-text {
+  font-size: 13px;
+  color: #444;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .hero-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Additions: polished form ===== */
+
+.scan-form-card {
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.scan-form-field {
+  margin-bottom: 1.25rem;
+}
+
+.scan-form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.scan-form-label-icon {
+  font-size: 16px;
+  color: #185fa5;
+}
+
+.scan-form-input,
+.scan-form-textarea {
+  border: 1px solid #e2e2df !important;
+  border-radius: 10px !important;
+  background: #fafaf8 !important;
+  color: #1a1a1a !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-form-input::placeholder,
+.scan-form-textarea::placeholder {
+  color: #9a9a95;
+}
+
+.scan-form-input:focus,
+.scan-form-textarea:focus {
+  outline: none;
+  border-color: #378add !important;
+  box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.15);
+  background: #ffffff !important;
+}
+
+.scan-form-button {
+  border-radius: 10px !important;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.scan-form-button:active {
+  transform: scale(0.99);
+}
+
+.scan-form-error {
+  color: #a32d2d;
+  font-size: 13px;
+}
+
+/* ===== Additions: score circle layout ===== */
+
+.score-section-circle {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
 }

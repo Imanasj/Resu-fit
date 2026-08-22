@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import heroImg from "./assets/hero.png";
+import ScoreCircle from "./ScoreCircle";
 
 function App() {
   const [resumeText, setResumeText] = useState("");
@@ -13,10 +15,8 @@ function App() {
   const [history, setHistory] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
 
-  // Load scan history when the page opens
   useEffect(() => {
     const savedHistory = localStorage.getItem("resufit-history");
-
     if (savedHistory) {
       try {
         setHistory(JSON.parse(savedHistory));
@@ -28,13 +28,8 @@ function App() {
 
   const saveHistory = (newItem) => {
     const updatedHistory = [newItem, ...history];
-
     setHistory(updatedHistory);
-
-    localStorage.setItem(
-      "resufit-history",
-      JSON.stringify(updatedHistory)
-    );
+    localStorage.setItem("resufit-history", JSON.stringify(updatedHistory));
   };
 
   const handleAnalyze = async () => {
@@ -51,10 +46,7 @@ function App() {
     try {
       const response = await fetch("/api/scan", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: "c7ec1007-f6c8-46b7-a304-8ade140df9fe",
           resumeText: resumeText,
@@ -68,9 +60,7 @@ function App() {
 
       if (!response.ok) {
         throw new Error(
-          data.detail ||
-            data.message ||
-            "Something went wrong while analyzing the resume."
+          data.detail || data.message || "Something went wrong while analyzing the resume."
         );
       }
 
@@ -95,11 +85,8 @@ function App() {
 
   const handleViewHistory = (item) => {
     setSelectedHistory(item);
-
     setTimeout(() => {
-      document
-        .getElementById("history-details")
-        ?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("history-details")?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -119,57 +106,79 @@ function App() {
       </header>
 
       <main className="container">
-        <section className="intro">
-          <h2>Analyze Your Resume</h2>
-
-          <p>
-            Compare your resume with a job posting and find out how well they
-            match.
+        <section className="hero">
+          <p className="hero-eyebrow">Free & instant</p>
+          <h2 className="hero-title">Know your match before you apply</h2>
+          <p className="hero-subtitle">
+            Paste your resume and a job posting to get a match score and see exactly which
+            keywords you're missing.
           </p>
+
+          <img src={heroImg} alt="" className="hero-image" />
+
+          <div className="hero-steps">
+            <div className="hero-step">
+              <span className="hero-step-num">1</span>
+              <p className="hero-step-text">Paste your resume and the job posting</p>
+            </div>
+            <div className="hero-step">
+              <span className="hero-step-num">2</span>
+              <p className="hero-step-text">We scan for keyword gaps</p>
+            </div>
+            <div className="hero-step">
+              <span className="hero-step-num">3</span>
+              <p className="hero-step-text">Get a match score and next steps</p>
+            </div>
+          </div>
         </section>
 
-        <div className="form-card">
-          <div className="form-group">
-            <label htmlFor="jobTitle">Job Title</label>
-
+        <div className="form-card scan-form-card">
+          <div className="form-group scan-form-field">
+            <label htmlFor="jobTitle" className="scan-form-label">
+              <i className="ti ti-briefcase scan-form-label-icon" aria-hidden="true"></i>
+              Job Title
+            </label>
             <input
               id="jobTitle"
               type="text"
+              className="scan-form-input"
               placeholder="Example: Software Developer"
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="resumeText">Resume</label>
-
+          <div className="form-group scan-form-field">
+            <label htmlFor="resumeText" className="scan-form-label">
+              <i className="ti ti-file-text scan-form-label-icon" aria-hidden="true"></i>
+              Resume
+            </label>
             <textarea
               id="resumeText"
+              className="scan-form-textarea"
               placeholder="Paste your resume text here..."
               value={resumeText}
               onChange={(e) => setResumeText(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="jobText">Job Description</label>
-
+          <div className="form-group scan-form-field">
+            <label htmlFor="jobText" className="scan-form-label">
+              <i className="ti ti-clipboard-text scan-form-label-icon" aria-hidden="true"></i>
+              Job Description
+            </label>
             <textarea
               id="jobText"
+              className="scan-form-textarea"
               placeholder="Paste the job posting here..."
               value={jobText}
               onChange={(e) => setJobText(e.target.value)}
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message scan-form-error">{error}</div>}
 
-          <button
-            className="analyze-button"
-            onClick={handleAnalyze}
-            disabled={loading}
-          >
+          <button className="analyze-button scan-form-button" onClick={handleAnalyze} disabled={loading}>
             {loading ? "Analyzing..." : "Analyze Resume"}
           </button>
         </div>
@@ -178,20 +187,14 @@ function App() {
           <section className="results-card">
             <h2>Analysis Results</h2>
 
-            <div className="score-section">
-              <h3>Match Score</h3>
-
-              <div className="score">
-                {result.matchScore}%
-              </div>
+            <div className="score-section score-section-circle">
+              <ScoreCircle score={result.matchScore} />
             </div>
 
             <div className="keyword-section">
               <div className="keyword-box">
                 <h3>Matched Keywords</h3>
-
-                {result.matchedKeywords &&
-                result.matchedKeywords.length > 0 ? (
+                {result.matchedKeywords && result.matchedKeywords.length > 0 ? (
                   <ul>
                     {result.matchedKeywords.map((keyword, index) => (
                       <li key={index}>✓ {keyword}</li>
@@ -204,9 +207,7 @@ function App() {
 
               <div className="keyword-box">
                 <h3>Missing Keywords</h3>
-
-                {result.missingKeywords &&
-                result.missingKeywords.length > 0 ? (
+                {result.missingKeywords && result.missingKeywords.length > 0 ? (
                   <ul>
                     {result.missingKeywords.map((keyword, index) => (
                       <li key={index}>✗ {keyword}</li>
@@ -223,21 +224,15 @@ function App() {
         <section className="history-card">
           <div className="history-header">
             <h2>Scan History</h2>
-
             {history.length > 0 && (
-              <button
-                className="clear-button"
-                onClick={handleClearHistory}
-              >
+              <button className="clear-button" onClick={handleClearHistory}>
                 Clear History
               </button>
             )}
           </div>
 
           {history.length === 0 ? (
-            <p className="empty-history">
-              No scan history yet. Analyze a resume to create your first scan.
-            </p>
+            <p className="empty-history">No scan history yet. Analyze a resume to create your first scan.</p>
           ) : (
             <div className="history-list">
               {history.map((item) => (
@@ -246,16 +241,9 @@ function App() {
                     <h3>{item.jobTitle}</h3>
                     <p>{item.date}</p>
                   </div>
-
                   <div className="history-actions">
-                    <span className="history-score">
-                      {item.matchScore}%
-                    </span>
-
-                    <button
-                      className="view-button"
-                      onClick={() => handleViewHistory(item)}
-                    >
+                    <span className="history-score">{item.matchScore}%</span>
+                    <button className="view-button" onClick={() => handleViewHistory(item)}>
                       View Details
                     </button>
                   </div>
@@ -266,39 +254,23 @@ function App() {
         </section>
 
         {selectedHistory && (
-          <section
-            className="results-card"
-            id="history-details"
-          >
+          <section className="results-card" id="history-details">
             <h2>History Details</h2>
+            <h3 className="history-job-title">{selectedHistory.jobTitle}</h3>
+            <p className="history-date">{selectedHistory.date}</p>
 
-            <h3 className="history-job-title">
-              {selectedHistory.jobTitle}
-            </h3>
-
-            <p className="history-date">
-              {selectedHistory.date}
-            </p>
-
-            <div className="score-section">
-              <h3>Match Score</h3>
-
-              <div className="score">
-                {selectedHistory.matchScore}%
-              </div>
+            <div className="score-section score-section-circle">
+              <ScoreCircle score={selectedHistory.matchScore} />
             </div>
 
             <div className="keyword-section">
               <div className="keyword-box">
                 <h3>Matched Keywords</h3>
-
                 {selectedHistory.matchedKeywords.length > 0 ? (
                   <ul>
-                    {selectedHistory.matchedKeywords.map(
-                      (keyword, index) => (
-                        <li key={index}>✓ {keyword}</li>
-                      )
-                    )}
+                    {selectedHistory.matchedKeywords.map((keyword, index) => (
+                      <li key={index}>✓ {keyword}</li>
+                    ))}
                   </ul>
                 ) : (
                   <p>No matched keywords found.</p>
@@ -307,14 +279,11 @@ function App() {
 
               <div className="keyword-box">
                 <h3>Missing Keywords</h3>
-
                 {selectedHistory.missingKeywords.length > 0 ? (
                   <ul>
-                    {selectedHistory.missingKeywords.map(
-                      (keyword, index) => (
-                        <li key={index}>✗ {keyword}</li>
-                      )
-                    )}
+                    {selectedHistory.missingKeywords.map((keyword, index) => (
+                      <li key={index}>✗ {keyword}</li>
+                    ))}
                   </ul>
                 ) : (
                   <p>No missing keywords.</p>
