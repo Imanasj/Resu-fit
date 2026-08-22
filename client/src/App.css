@@ -217,6 +217,22 @@ body {
   color: #6b7280;
 }
 
+.results-card,
+.results-card h2,
+.results-card h3,
+.keyword-box,
+.keyword-box h3,
+.keyword-box li,
+.history-card,
+.history-header h2,
+.history-info h3,
+.history-info p,
+.history-job-title,
+.history-date,
+.history-item {
+  color: #1f2937;
+}
+
 @media (max-width: 700px) {
   .keyword-section {
     grid-template-columns: 1fr;
