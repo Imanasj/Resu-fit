@@ -6,17 +6,31 @@ using ResumeMatch.Infrastructure.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("ResuFitDb"));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddSingleton<KeywordMatchingService>();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
-
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -58,15 +72,19 @@ app.MapPost("/api/scan", async (
     KeywordMatchingService matchingService,
     AppDbContext db) =>
 {
-    var userExists = await db.Users
-        .AnyAsync(user => user.Id == request.UserId);
+    var userId = request.UserId == Guid.Empty ? Guid.NewGuid() : request.UserId;
+    var userExists = await db.Users.AnyAsync(user => user.Id == userId);
 
     if (!userExists)
     {
-        return Results.BadRequest(new
+        db.Users.Add(new User
         {
-            message = "User does not exist"
+            Id = userId,
+            Email = $"local-user-{userId}@example.com",
+            PasswordHash = "local-dev-user",
+            CreatedAt = DateTime.UtcNow
         });
+        await db.SaveChangesAsync();
     }
 
     var result = matchingService.Compare(
@@ -77,7 +95,7 @@ app.MapPost("/api/scan", async (
     var scan = new Scan
     {
         Id = Guid.NewGuid(),
-        UserId = request.UserId,
+        UserId = userId,
         ResumeFilename = request.ResumeFilename,
         JobTitle = request.JobTitle,
         MatchScore = result.MatchScore,

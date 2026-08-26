@@ -1,7 +1,125 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import heroImg from "./assets/hero.png";
 import ScoreCircle from "./ScoreCircle";
+
+function getResumeChecks(resumeText) {
+  const checks = [];
+  const wordCount = resumeText.trim().split(/\s+/).filter(Boolean).length;
+
+  if (wordCount < 150) {
+    checks.push({
+      ok: false,
+      label: `Resume looks short (${wordCount} words). Aim for 300+ words.`,
+    });
+  } else {
+    checks.push({ ok: true, label: `Resume length looks solid (${wordCount} words).` });
+  }
+
+  const lower = resumeText.toLowerCase();
+
+  if (!lower.includes("experience")) {
+    checks.push({ ok: false, label: "No 'Experience' section heading found." });
+  } else {
+    checks.push({ ok: true, label: "Experience section found." });
+  }
+
+  if (!lower.includes("education")) {
+    checks.push({ ok: false, label: "No 'Education' section heading found." });
+  } else {
+    checks.push({ ok: true, label: "Education section found." });
+  }
+
+  if (!lower.includes("skill")) {
+    checks.push({ ok: false, label: "No 'Skills' section heading found." });
+  } else {
+    checks.push({ ok: true, label: "Skills section found." });
+  }
+
+  return checks;
+}
+
+function downloadReport(item) {
+  const lines = [
+    `Resu-Fit Scan Report`,
+    `Job Title: ${item.jobTitle}`,
+    `Date: ${item.date}`,
+    ``,
+    `Match Score: ${item.matchScore}%`,
+    ``,
+    `Matched Keywords:`,
+    ...(item.matchedKeywords.length
+      ? item.matchedKeywords.map((k) => `  - ${k}`)
+      : ["  (none)"]),
+    ``,
+    `Missing Keywords:`,
+    ...(item.missingKeywords.length
+      ? item.missingKeywords.map((k) => `  - ${k}`)
+      : ["  (none)"]),
+  ];
+
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `resufit-report-${item.jobTitle.replace(/\s+/g, "-").toLowerCase()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function KeywordBar({ matched, missing }) {
+  const total = matched + missing;
+  const matchedPct = total > 0 ? Math.round((matched / total) * 100) : 0;
+
+  return (
+    <div className="keyword-bar-wrap">
+      <div className="keyword-bar">
+        <div className="keyword-bar-matched" style={{ width: `${matchedPct}%` }} />
+      </div>
+      <p className="keyword-bar-caption">
+        {matched} matched / {missing} missing keywords
+      </p>
+    </div>
+  );
+}
+
+function CopyMissingButton({ missingKeywords }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(missingKeywords.join(", "));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (!missingKeywords || missingKeywords.length === 0) return null;
+
+  return (
+    <button className="copy-button" onClick={handleCopy}>
+      {copied ? "Copied!" : "Copy missing keywords"}
+    </button>
+  );
+}
+
+function ResumeChecklist({ resumeText }) {
+  const checks = getResumeChecks(resumeText);
+
+  return (
+    <div className="resume-checks">
+      <h3>Resume Checks</h3>
+      <ul>
+        {checks.map((check, i) => (
+          <li key={i} className={check.ok ? "check-ok" : "check-warn"}>
+            {check.ok ? "✓" : "!"} {check.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function App() {
   const [resumeText, setResumeText] = useState("");
@@ -73,6 +191,7 @@ function App() {
         matchScore: data.matchScore,
         matchedKeywords: data.matchedKeywords || [],
         missingKeywords: data.missingKeywords || [],
+        resumeText: resumeText,
       };
 
       saveHistory(historyItem);
@@ -113,8 +232,6 @@ function App() {
             Paste your resume and a job posting to get a match score and see exactly which
             keywords you're missing.
           </p>
-
-          <img src={heroImg} alt="" className="hero-image" />
 
           <div className="hero-steps">
             <div className="hero-step">
@@ -191,6 +308,11 @@ function App() {
               <ScoreCircle score={result.matchScore} />
             </div>
 
+            <KeywordBar
+              matched={(result.matchedKeywords || []).length}
+              missing={(result.missingKeywords || []).length}
+            />
+
             <div className="keyword-section">
               <div className="keyword-box">
                 <h3>Matched Keywords</h3>
@@ -216,8 +338,26 @@ function App() {
                 ) : (
                   <p>No missing keywords.</p>
                 )}
+                <CopyMissingButton missingKeywords={result.missingKeywords || []} />
               </div>
             </div>
+
+            <ResumeChecklist resumeText={resumeText} />
+
+            <button
+              className="download-button"
+              onClick={() =>
+                downloadReport({
+                  jobTitle: jobTitle || "Untitled Job",
+                  date: new Date().toLocaleString(),
+                  matchScore: result.matchScore,
+                  matchedKeywords: result.matchedKeywords || [],
+                  missingKeywords: result.missingKeywords || [],
+                })
+              }
+            >
+              Download report (.txt)
+            </button>
           </section>
         )}
 
@@ -263,6 +403,11 @@ function App() {
               <ScoreCircle score={selectedHistory.matchScore} />
             </div>
 
+            <KeywordBar
+              matched={selectedHistory.matchedKeywords.length}
+              missing={selectedHistory.missingKeywords.length}
+            />
+
             <div className="keyword-section">
               <div className="keyword-box">
                 <h3>Matched Keywords</h3>
@@ -288,8 +433,16 @@ function App() {
                 ) : (
                   <p>No missing keywords.</p>
                 )}
+                <CopyMissingButton missingKeywords={selectedHistory.missingKeywords} />
               </div>
             </div>
+
+            <button
+              className="download-button"
+              onClick={() => downloadReport(selectedHistory)}
+            >
+              Download report (.txt)
+            </button>
           </section>
         )}
       </main>
