@@ -95,13 +95,5 @@ This runs `vite build` and pushes the output to the `gh-pages` branch.
 See `docs/database/README.md` for the full database design: schema, ERD,
 views, functions, and example queries.
 
-## Team
-
-- Iman — frontend UI, styling, project setup
-- Saranya — backend API, matching logic, PostgreSQL integration
-- Jun — frontend scaffolding, scan history
-
-## Notes
-
-- Never commit real database credentials to this repo. Local-only config
-  files are excluded via `.gitignore` — keep it that way.
+Link to Site
+https://imanasj.github.io/Resu-fit/
